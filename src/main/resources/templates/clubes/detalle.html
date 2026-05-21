@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title th:text="${club.nombre}">Club</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
+  <style>
+    body{background:#f5f7f5;}
+    .section-title{font-weight:700;color:#1a5c2a;border-left:4px solid #f5c518;padding-left:12px;}
+    .rel-header{background:#1a5c2a;color:white;padding:10px 16px;font-size:.82rem;font-weight:700;letter-spacing:.3px;border-radius:10px 10px 0 0;}
+    .rel-card{border-radius:0 0 10px 10px;border:1px solid #dee2e6;background:white;}
+    .jugador-row:hover{background:#f0f7f1;}
+    .badge-rel{font-size:.68rem;}
+  </style>
+</head>
+<body>
+  <div th:replace="~{fragments/navbar :: navbar}"></div>
+  <div class="container py-5">
+
+    <!-- Flash -->
+    <div th:if="${exito}" class="alert alert-success alert-dismissible fade show mb-4">
+      <i class="bi bi-check-circle-fill"></i> <span th:text="${exito}"></span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Header club -->
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+      <div class="d-flex align-items-center gap-3">
+        <a th:href="@{/clubes}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i></a>
+        <div style="width:56px;height:56px;background:#1a5c2a;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:1.6rem;">&#9917;</div>
+        <div>
+          <h2 class="fw-bold mb-0" th:text="${club.nombre}"></h2>
+          <span class="text-muted" th:text="${club.ciudad + ' — Fundado en ' + club.anioFundacion}"></span>
+        </div>
+      </div>
+      <a th:href="@{/clubes/editar/{id}(id=${club.id})}" class="btn btn-warning btn-sm fw-bold">
+        <i class="bi bi-pencil"></i> Editar Club
+      </a>
+    </div>
+
+    <div class="row g-4">
+
+      <!-- @OneToOne Entrenador -->
+      <div class="col-md-6">
+        <div class="rel-header">@OneToOne — Entrenador</div>
+        <div class="rel-card p-3">
+          <div th:if="${club.entrenador != null}">
+            <div class="d-flex align-items-center gap-3">
+              <div style="width:48px;height:48px;background:#e8f5e9;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.4rem;">&#128100;</div>
+              <div>
+                <div class="fw-bold" th:text="${club.entrenador.nombre + ' ' + club.entrenador.apellido}"></div>
+                <small class="text-muted" th:text="${club.entrenador.nacionalidad + ' — ' + club.entrenador.edad + ' años'}"></small>
+              </div>
+            </div>
+            <div class="mt-2 text-end">
+              <a th:href="@{/entrenadores/{id}(id=${club.entrenador.id})}" class="btn btn-sm btn-outline-success">
+                <i class="bi bi-eye"></i> Ver entrenador
+              </a>
+            </div>
+          </div>
+          <div th:if="${club.entrenador == null}" class="text-muted text-center py-3">
+            <i class="bi bi-person-x fs-2 d-block mb-2"></i>Sin entrenador asignado
+            <br/>
+            <a th:href="@{/clubes/editar/{id}(id=${club.id})}" class="btn btn-sm btn-outline-success mt-2">
+              <i class="bi bi-plus-circle"></i> Asignar entrenador
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- @ManyToOne Asociacion -->
+      <div class="col-md-6">
+        <div class="rel-header" style="background:#0d6efd;">@ManyToOne — Asociación</div>
+        <div class="rel-card p-3">
+          <div th:if="${club.asociacion != null}">
+            <div class="d-flex align-items-center gap-3">
+              <div style="width:48px;height:48px;background:#e8eaf6;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.4rem;">&#127758;</div>
+              <div>
+                <div class="fw-bold" th:text="${club.asociacion.nombre}"></div>
+                <small class="text-muted" th:text="${club.asociacion.pais + ' — Presidente: ' + club.asociacion.presidente}"></small>
+              </div>
+            </div>
+          </div>
+          <div th:if="${club.asociacion == null}" class="text-muted text-center py-3">
+            <i class="bi bi-globe fs-2 d-block mb-2"></i>Sin asociación asignada
+          </div>
+        </div>
+      </div>
+
+      <!-- @OneToMany Jugadores -->
+      <div class="col-12">
+        <div class="rel-header" style="background:#e69500;">
+          @OneToMany — Plantel de Jugadores
+          <span class="badge bg-white text-dark ms-2" th:text="${#lists.size(club.jugadores)} + ' jugadores'"></span>
+        </div>
+        <div class="rel-card">
+
+          <!-- Tabla de jugadores -->
+          <div th:if="${#lists.size(club.jugadores) > 0}">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr><th>#</th><th>Camiseta</th><th>Nombre</th><th>Apellido</th><th>Posición</th><th>Acción</th></tr>
+              </thead>
+              <tbody>
+                <tr th:each="j : ${club.jugadores}" class="jugador-row">
+                  <td th:text="${j.id}" class="text-muted small"></td>
+                  <td><span class="badge bg-dark rounded-circle p-2" th:text="${j.numero}"></span></td>
+                  <td th:text="${j.nombre}"></td>
+                  <td class="fw-bold" th:text="${j.apellido}"></td>
+                  <td><span class="badge bg-warning text-dark" th:text="${j.posicion}"></span></td>
+                  <td>
+                    <a th:href="@{/clubes/{cid}/jugadores/eliminar/{jid}(cid=${club.id},jid=${j.id})}"
+                       class="btn btn-sm btn-outline-danger"
+                       onclick="return confirm('¿Eliminar jugador?')">
+                      <i class="bi bi-trash"></i>
+                    </a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div th:if="${#lists.size(club.jugadores) == 0}" class="text-muted text-center py-3">
+            <i class="bi bi-people fs-2 d-block mb-1"></i>Sin jugadores registrados
+          </div>
+
+          <!-- Formulario agregar jugador -->
+          <div class="border-top p-3 bg-light">
+            <h6 class="fw-bold mb-3 text-success"><i class="bi bi-person-plus"></i> Agregar Jugador</h6>
+            <form th:action="@{/clubes/{id}/jugadores/agregar(id=${club.id})}" method="post">
+              <div class="row g-2">
+                <div class="col-md-3">
+                  <input type="text" class="form-control form-control-sm" name="nombre" placeholder="Nombre *" required/>
+                </div>
+                <div class="col-md-3">
+                  <input type="text" class="form-control form-control-sm" name="apellido" placeholder="Apellido *" required/>
+                </div>
+                <div class="col-md-2">
+                  <input type="number" class="form-control form-control-sm" name="numero" placeholder="# Camiseta" min="1" max="99" required/>
+                </div>
+                <div class="col-md-3">
+                  <select class="form-select form-select-sm" name="posicion" required>
+                    <option value="">Posición *</option>
+                    <option>Portero</option>
+                    <option>Defensa</option>
+                    <option>Mediocampista</option>
+                    <option>Delantero</option>
+                  </select>
+                </div>
+                <div class="col-md-1">
+                  <button type="submit" class="btn btn-success btn-sm w-100">
+                    <i class="bi bi-plus-lg"></i>
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- @ManyToMany Competiciones -->
+      <div class="col-12">
+        <div class="rel-header" style="background:#dc3545;">
+          @ManyToMany — Competiciones
+          <span class="badge bg-white text-dark ms-2" th:text="${#lists.size(club.competiciones)} + ' inscritas'"></span>
+        </div>
+        <div class="rel-card p-3">
+          <div th:if="${#lists.size(club.competiciones) > 0}" class="row g-2">
+            <div class="col-md-4" th:each="comp : ${club.competiciones}">
+              <div class="p-3 border rounded" style="background:#fff5f5;">
+                <div class="fw-bold text-danger" th:text="${comp.nombre}"></div>
+                <small class="text-muted">Premio: $<span th:text="${#numbers.formatInteger(comp.montoPremio,1,'COMMA')}"></span></small><br/>
+                <small class="text-muted"><span th:text="${comp.fechaInicio}"></span> → <span th:text="${comp.fechaFin}"></span></small>
+              </div>
+            </div>
+          </div>
+          <div th:if="${#lists.size(club.competiciones) == 0}" class="text-muted text-center py-3">
+            <i class="bi bi-trophy fs-2 d-block mb-1"></i>Sin competiciones. <a th:href="@{/clubes/editar/{id}(id=${club.id})}">Editar club</a> para inscribir.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-dark" style="background:#1a5c2a;">
+  <div class="container-fluid px-4">
+    <a class="navbar-brand fw-bold fs-4" th:href="@{/}">&#9917; Liga Colombia</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navMenu">
+      <ul class="navbar-nav ms-auto gap-1">
+        <li class="nav-item"><a class="nav-link" th:href="@{/}">Inicio</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/clubes}">Clubes</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/jugadores}">Jugadores</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/entrenadores}">Entrenadores</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/competiciones}">Competiciones</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/asociaciones}">Asociaciones</a></li>
+        <li class="nav-item"><a class="nav-link text-warning fw-bold" href="/h2-console" target="_blank">H2 DB</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+</body>
+</html>
